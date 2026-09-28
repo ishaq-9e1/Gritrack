@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrievanceTrack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <span class="eyebrow">Citizen Service Portal</span>
+        <h1>GrievanceTrack</h1>
+        <p>Complaint tracking with automatic department routing and SLA escalation</p>
+    </div>
+    <button class="secondary" id="slaCheckBtn">Run SLA Check</button>
+</header>
+
+<main class="page">
+    <section class="stats" id="stats"></section>
+
+    <section class="grid two">
+        <div class="panel">
+            <div class="panel-head">
+                <div>
+                    <span class="eyebrow">New grievance</span>
+                    <h2>Submit a complaint</h2>
+                </div>
+            </div>
+            <form id="grievanceForm">
+                <div class="form-grid">
+                    <label>Citizen name<input id="citizenName" required></label>
+                    <label>Email<input id="citizenEmail" type="email" required></label>
+                </div>
+                <label>Subject<input id="subject" required></label>
+                <label>Category<select id="categoryId" required></select></label>
+                <div class="route-box" id="routePreview">Choose a category to see department and SLA.</div>
+                <label>Description<textarea id="description" rows="4" required></textarea></label>
+                <button type="submit">Submit grievance</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <div class="panel-head">
+                <div>
+                    <span class="eyebrow">System rules</span>
+                    <h2>Workflow</h2>
+                </div>
+            </div>
+            <div class="flow">
+                <div class="flow-step"><strong>1</strong><span>Submitted</span></div>
+                <div class="flow-line"></div>
+                <div class="flow-step"><strong>2</strong><span>In progress</span></div>
+                <div class="flow-line"></div>
+                <div class="flow-step"><strong>3</strong><span>Resolved</span></div>
+                <div class="flow-line"></div>
+                <div class="flow-step"><strong>4</strong><span>Closed</span></div>
+            </div>
+            <div class="rule-list">
+                <div><b>Automatic routing</b><span>Category decides department and SLA deadline.</span></div>
+                <div><b>Controlled status</b><span>Stages cannot be skipped.</span></div>
+                <div><b>Resolution note</b><span>Required before moving to Resolved.</span></div>
+                <div><b>SLA escalation</b><span>Overdue open grievances are escalated with officer and time.</span></div>
+                <div><b>Citizen rating</b><span>One rating from 1 to 5 after closure.</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head row">
+            <div>
+                <span class="eyebrow">Live records</span>
+                <h2>Grievances</h2>
+            </div>
+            <button class="secondary" id="refreshBtn">Refresh</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Complaint</th>
+                    <th>Route</th>
+                    <th>Status</th>
+                    <th>SLA</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="grievanceRows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <span class="eyebrow">Audit trail</span>
+                <h2>Escalation records</h2>
+            </div>
+        </div>
+        <div id="escalationList" class="escalations"></div>
+    </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
