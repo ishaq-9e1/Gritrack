@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface EscalationRepository extends JpaRepository<Escalation, Long> {
     List<Escalation> findAllByOrderByEscalatedAtDesc();
+    long countByGrievanceId(Long grievanceId);
+    void deleteByGrievanceId(Long grievanceId);
 }

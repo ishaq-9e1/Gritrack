@@ -11,4 +11,6 @@ public interface GrievanceRepository extends JpaRepository<Grievance, Long> {
     List<Grievance> findAllByOrderBySubmittedAtDesc();
     List<Grievance> findByEscalatedFalseAndSlaDeadlineBeforeAndStatusNotIn(
             LocalDateTime time, List<GrievanceStatus> statuses);
+    boolean existsByCategoryId(Long categoryId);
+    boolean existsByDepartmentId(Long departmentId);
 }

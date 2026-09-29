@@ -7,8 +7,10 @@ import com.example.gritrack.model.Category;
 import com.example.gritrack.model.Grievance;
 import com.example.gritrack.model.GrievanceStatus;
 import com.example.gritrack.repository.CategoryRepository;
+import com.example.gritrack.repository.EscalationRepository;
 import com.example.gritrack.repository.GrievanceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,10 +19,14 @@ import java.util.List;
 public class GrievanceService {
     private final GrievanceRepository grievanceRepository;
     private final CategoryRepository categoryRepository;
+    private final EscalationRepository escalationRepository;
 
-    public GrievanceService(GrievanceRepository grievanceRepository, CategoryRepository categoryRepository) {
+    public GrievanceService(GrievanceRepository grievanceRepository,
+                            CategoryRepository categoryRepository,
+                            EscalationRepository escalationRepository) {
         this.grievanceRepository = grievanceRepository;
         this.categoryRepository = categoryRepository;
+        this.escalationRepository = escalationRepository;
     }
 
     public List<Grievance> getAll() {
@@ -81,6 +87,13 @@ public class GrievanceService {
         }
         grievance.setRating(request.getRating());
         return grievanceRepository.save(grievance);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Grievance grievance = getById(id);
+        escalationRepository.deleteByGrievanceId(id);
+        grievanceRepository.delete(grievance);
     }
 
     private boolean isValidNext(GrievanceStatus current, GrievanceStatus next) {

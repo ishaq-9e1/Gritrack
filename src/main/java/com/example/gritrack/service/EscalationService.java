@@ -1,5 +1,6 @@
 package com.example.gritrack.service;
 
+import com.example.gritrack.dto.EscalationRequest;
 import com.example.gritrack.model.Escalation;
 import com.example.gritrack.model.Grievance;
 import com.example.gritrack.model.GrievanceStatus;
@@ -27,6 +28,43 @@ public class EscalationService {
         return escalationRepository.findAllByOrderByEscalatedAtDesc();
     }
 
+    public Escalation getById(Long id) {
+        return escalationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Escalation not found"));
+    }
+
+    @Transactional
+    public Escalation create(EscalationRequest request) {
+        Grievance grievance = findGrievance(request.getGrievanceId());
+        Escalation escalation = new Escalation(
+                grievance, request.getOfficerName().trim(), request.getReason().trim(), LocalDateTime.now());
+        grievance.setEscalated(true);
+        grievanceRepository.save(grievance);
+        return escalationRepository.save(escalation);
+    }
+
+    public Escalation update(Long id, EscalationRequest request) {
+        Escalation escalation = getById(id);
+        if (!escalation.getGrievance().getId().equals(request.getGrievanceId())) {
+            throw new IllegalStateException("Grievance cannot be changed for an existing escalation");
+        }
+        escalation.setOfficerName(request.getOfficerName().trim());
+        escalation.setReason(request.getReason().trim());
+        return escalationRepository.save(escalation);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Escalation escalation = getById(id);
+        Grievance grievance = escalation.getGrievance();
+        long count = escalationRepository.countByGrievanceId(grievance.getId());
+        escalationRepository.delete(escalation);
+        if (count <= 1) {
+            grievance.setEscalated(false);
+            grievanceRepository.save(grievance);
+        }
+    }
+
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void automaticCheck() {
@@ -39,10 +77,9 @@ public class EscalationService {
         List<Grievance> overdue = grievanceRepository
                 .findByEscalatedFalseAndSlaDeadlineBeforeAndStatusNotIn(LocalDateTime.now(), finished);
         for (Grievance grievance : overdue) {
-            String officer = grievance.getDepartment().getEscalationOfficer();
             Escalation escalation = new Escalation(
                     grievance,
-                    officer,
+                    grievance.getDepartment().getEscalationOfficer(),
                     "SLA deadline exceeded",
                     LocalDateTime.now()
             );
@@ -51,5 +88,10 @@ public class EscalationService {
             grievanceRepository.save(grievance);
         }
         return overdue.size();
+    }
+
+    private Grievance findGrievance(Long id) {
+        return grievanceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Grievance not found"));
     }
 }
